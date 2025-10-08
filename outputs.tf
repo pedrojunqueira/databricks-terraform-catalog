@@ -39,35 +39,44 @@ output "dev_abfss_url" {
   value       = module.dev_storage.abfss_url
 }
 
-# Unity Catalog outputs will be available after Step 2 deployment
-# Uncomment these after applying unity_catalog_step2.tf
-#
-# output "dev_unity_catalog_access_connector_id" {
-#   description = "ID of the Unity Catalog access connector"
-#   value       = module.dev_unity_catalog.access_connector_id
-# }
-#
-# output "dev_unity_catalog_principal_id" {
-#   description = "Principal ID of the Unity Catalog managed identity"
-#   value       = module.dev_unity_catalog.access_connector_principal_id
-# }
-#
-# output "dev_unity_catalog_credential_name" {
-#   description = "Name of the dev Unity Catalog storage credential"
-#   value       = module.dev_unity_catalog.storage_credential_name
-# }
-#
-# output "dev_unity_catalog_external_location_name" {
-#   description = "Name of the dev Unity Catalog external location"
-#   value       = module.dev_unity_catalog.external_location_name
-# }
-#
-# output "dev_unity_catalog_external_location_url" {
-#   description = "URL of the dev Unity Catalog external location"
-#   value       = module.dev_unity_catalog.external_location_url
-# }
-#
-# output "dev_catalog_name" {
-#   description = "Name of the dev catalog"
-#   value       = module.dev_unity_catalog.catalog_name
-# }
+# Unity Catalog outputs
+# These will be available after the second deployment step
+output "dev_unity_catalog_access_connector_id" {
+  description = "ID of the Unity Catalog access connector"
+  value       = module.dev_unity_catalog.access_connector_id
+}
+
+output "dev_unity_catalog_principal_id" {
+  description = "Principal ID of the Unity Catalog managed identity"
+  value       = module.dev_unity_catalog.access_connector_principal_id
+}
+
+output "dev_unity_catalog_credential_name" {
+  description = "Name of the dev Unity Catalog storage credential"
+  value       = module.dev_unity_catalog.storage_credential_name
+}
+
+output "dev_unity_catalog_external_location_name" {
+  description = "Name of the dev Unity Catalog external location"
+  value       = module.dev_unity_catalog.external_location_name
+}
+
+output "dev_unity_catalog_external_location_url" {
+  description = "URL of the dev Unity Catalog external location"
+  value       = module.dev_unity_catalog.external_location_url
+}
+
+output "dev_catalog_name" {
+  description = "Name of the dev catalog"
+  value       = module.dev_unity_catalog.catalog_name
+}
+
+output "dev_default_schema_name" {
+  description = "Name of the default schema in the dev catalog"
+  value       = module.dev_unity_catalog.default_schema_name
+}
+
+output "dev_default_schema_full_name" {
+  description = "Full name of the default schema (dev.default)"
+  value       = module.dev_unity_catalog.default_schema_full_name
+}

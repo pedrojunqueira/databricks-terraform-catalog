@@ -26,7 +26,8 @@ resource "azurerm_role_assignment" "unity_catalog_storage" {
 
 # Unity Catalog Storage Credential
 resource "databricks_storage_credential" "main" {
-  name = var.credential_name
+  name         = var.credential_name
+  force_update = true
   
   azure_managed_identity {
     access_connector_id = data.azurerm_databricks_access_connector.unity_catalog.id
@@ -50,9 +51,18 @@ resource "databricks_external_location" "main" {
 
 # Unity Catalog - Catalog
 resource "databricks_catalog" "main" {
-  name           = var.catalog_name
-  comment        = var.catalog_comment
-  storage_root   = databricks_external_location.main.url
+  name         = var.catalog_name
+  comment      = var.catalog_comment
+  storage_root = databricks_external_location.main.url
   
   depends_on = [databricks_external_location.main]
+}
+
+# Default Schema in the Catalog
+resource "databricks_schema" "default" {
+  catalog_name = databricks_catalog.main.name
+  name         = "default"
+  comment      = "Default schema for ${var.catalog_name} catalog"
+  
+  depends_on = [databricks_catalog.main]
 }
