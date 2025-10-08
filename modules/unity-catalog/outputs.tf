@@ -32,3 +32,13 @@ output "catalog_id" {
   description = "ID of the Unity Catalog catalog"
   value       = databricks_catalog.main.id
 }
+
+output "default_schema_name" {
+  description = "Name of the default schema in the catalog"
+  value       = databricks_schema.default.name
+}
+
+output "default_schema_full_name" {
+  description = "Full name of the default schema (catalog.schema)"
+  value       = "${databricks_catalog.main.name}.${databricks_schema.default.name}"
+}
