@@ -12,10 +12,13 @@ terraform {
 }
 
 # Random string for unique storage account name
+# Azure storage account names must be 3-24 chars, lowercase letters and numbers only
 resource "random_string" "storage_suffix" {
   length  = 8
-  special = true
-  upper   = true
+  special = false
+  upper   = false
+  lower   = true
+  numeric = true
 }
 
 # Storage Account for Unity Catalog
