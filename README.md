@@ -14,12 +14,14 @@ This project provisions a complete Azure Databricks workspace with Unity Catalog
 ## 🏗️ Infrastructure Components
 
 ### Azure Resources
+
 - **Resource Group** (`rg-databricks-dataeng42`)
 - **Databricks Workspace** (Premium) - Module: `databricks-workspace`
 - **Storage Account V2** with Data Lake Gen2 - Module: `storage-account`
 - **Managed Resource Group** (auto-created by Databricks)
 
 ### Unity Catalog Components
+
 - **Access Connector** (auto-created with proper permissions)
 - **Storage Credential** (`unity-catalog-credential`) - Module: `unity-catalog`
 - **External Location** (`unity-catalog-external-location`) - Module: `unity-catalog`
@@ -28,23 +30,27 @@ This project provisions a complete Azure Databricks workspace with Unity Catalog
 ## 🧩 Modular Architecture
 
 ### **Module: databricks-workspace**
+
 - Creates Azure Databricks workspace
 - Configurable SKU, location, and tags
 - Outputs workspace details and managed resource group info
 
 ### **Module: storage-account**
+
 - Creates Azure Storage Account V2 with Data Lake Gen2
 - Configurable storage tier, replication, and folder structure
 - Supports multiple containers and custom folder layouts
 - Generates unique storage account names
 
 ### **Module: unity-catalog**
+
 - Creates Unity Catalog storage credential using access connector
 - Creates external location pointing to storage account
 - Creates Unity Catalog with proper governance setup
 - Assigns necessary permissions automatically
 
 ### **Benefits of Modular Design:**
+
 - ✅ **Reusability**: Deploy multiple catalogs with separate storage accounts
 - ✅ **Isolation**: Each catalog can have its own dedicated storage and permissions
 - ✅ **Maintainability**: Changes to one module don't affect others
@@ -83,16 +89,20 @@ databricks-terraform-catalog/
 # Login to Azure
 az login
 
+# Set your subscription ID
+SUBSCRIPTION_ID="your-subscription-id-here"
+
 # Create service principal with contributor role
 az ad sp create-for-rbac \
   --name "databricks-terraform-sp" \
   --role contributor \
-  --scopes /subscriptions/<your-subscription-id>
+  --scopes /subscriptions/$SUBSCRIPTION_ID
 ```
 
 **Important:** Save the output containing:
+
 - `appId` (Client ID)
-- `password` (Client Secret)  
+- `password` (Client Secret)
 - `tenant` (Tenant ID)
 
 ### Step 2: Configure Environment Variables
@@ -130,8 +140,9 @@ terraform apply -target=azurerm_resource_group.main -target=module.databricks_wo
 ```
 
 **What this deploys:**
+
 - ✅ Azure Resource Group
-- ✅ Databricks Premium Workspace  
+- ✅ Databricks Premium Workspace
 - ✅ Storage Account with Data Lake Gen2
 - ✅ Storage containers and folder structure
 
@@ -144,6 +155,7 @@ terraform apply
 ```
 
 **What this deploys:**
+
 - ✅ Unity Catalog Access Connector (uses existing)
 - ✅ Storage Credential
 - ✅ External Location
@@ -155,7 +167,7 @@ terraform apply
 The Databricks provider needs to connect to an existing workspace to create Unity Catalog resources. This creates a circular dependency:
 
 - **Unity Catalog** resources need → **Databricks Provider** configured
-- **Databricks Provider** needs → **Workspace URL** (from workspace resource)  
+- **Databricks Provider** needs → **Workspace URL** (from workspace resource)
 - **Workspace URL** comes from → **Workspace creation** (same Terraform run)
 
 The two-step approach resolves this by ensuring the workspace exists before the provider tries to connect to it.
@@ -163,15 +175,19 @@ The two-step approach resolves this by ensuring the workspace exists before the 
 ## 🔧 Configuration Files
 
 ### `main.tf`
+
 Contains the complete infrastructure configuration including:
+
 - Terraform and provider requirements
 - Azure Resource Group
 - Databricks workspace module
-- Storage account module  
+- Storage account module
 - Unity Catalog module with proper dependencies
 
 ### `variables.tf`
+
 Defines configurable variables:
+
 - `location` - Azure region (default: australiaeast)
 - `resource_group_name` - Resource group name
 - `databricks_workspace_name` - Workspace name
@@ -181,7 +197,9 @@ Defines configurable variables:
 - `tags` - Resource tags
 
 ### `outputs.tf`
+
 Exports important resource information:
+
 - Databricks workspace ID and URL
 - Resource group and managed resource group names
 - Storage account details and endpoints
@@ -193,18 +211,21 @@ Exports important resource information:
 After successful deployment, you'll receive:
 
 ### Infrastructure Outputs
+
 - **Workspace URL:** Access point to your Databricks workspace
 - **Workspace ID:** Azure resource identifier
 - **Resource Group:** Container for all resources
 - **Managed Resource Group:** Auto-created by Databricks
 
-### Storage Outputs  
+### Storage Outputs
+
 - **Storage Account Name:** Unique storage account identifier
 - **Storage Account ID:** Azure resource identifier
 - **Primary DFS Endpoint:** Data Lake Gen2 endpoint
 - **ABFSS URL:** Complete storage URL for Unity Catalog
 
 ### Unity Catalog Outputs
+
 - **Access Connector ID:** Managed identity for storage access
 - **Principal ID:** Service principal for permissions
 - **Storage Credential:** `unity-catalog-credential` for authentication
@@ -216,18 +237,22 @@ After successful deployment, you'll receive:
 ## 🗂️ Unity Catalog Setup
 
 ### Storage Configuration
+
 - **Storage Account:** Data Lake Gen2 with hierarchical namespace
 - **Container:** `data` with `catalogs` folder pre-created
 - **Permissions:** Unity Catalog access connector has Storage Blob Data Contributor role
 
 ### Unity Catalog Objects
+
 - **Storage Credential:** Uses Azure managed identity via access connector
 - **External Location:** Points to the storage account container
 - **Dev Catalog:** Ready for creating schemas and tables
 - **Default Schema:** `dev.default` schema automatically created and ready to use
 
 ### Ready to Use
+
 Your Unity Catalog setup is complete and ready for:
+
 - **Immediate table creation** in the `dev.default` schema (no additional setup needed)
 - Creating additional schemas in the `dev` catalog
 - Creating tables stored in Azure Data Lake
@@ -235,6 +260,7 @@ Your Unity Catalog setup is complete and ready for:
 - Managing permissions through Unity Catalog governance
 
 ### Quick Start Examples
+
 ```sql
 -- Create a table in the default schema (immediately available)
 CREATE TABLE dev.default.my_first_table (
@@ -264,7 +290,9 @@ After successful deployment, verify:
 ## 🔍 Troubleshooting
 
 ### Provider Authentication Issues
+
 If you get authentication errors in Step 2:
+
 ```bash
 # Verify your service principal has workspace access
 az role assignment list --assignee $ARM_CLIENT_ID --scope /subscriptions/$ARM_SUBSCRIPTION_ID
@@ -274,7 +302,9 @@ echo $ARM_CLIENT_ID
 ```
 
 ### Workspace Connection Issues
+
 If the Databricks provider can't connect:
+
 ```bash
 # Check workspace is accessible
 az databricks workspace show --resource-group rg-databricks-dataeng42 --name dataeng42-develop
@@ -286,10 +316,12 @@ terraform output databricks_workspace_url
 ### Common Issues
 
 1. **Resource Naming Conflicts**
+
    - Databricks workspace names must be globally unique
    - Modify `databricks_workspace_name` variable if needed
 
-2. **Region Availability**  
+2. **Region Availability**
+
    - Ensure Databricks is available in your selected region
    - Check Azure service availability by region
 
@@ -311,7 +343,7 @@ terraform output databricks_workspace_url
 To modify the deployment:
 
 1. Update variables in `variables.tf`
-2. Run `terraform plan` to review changes  
+2. Run `terraform plan` to review changes
 3. Run `terraform apply` to implement changes
 
 ### Adding Additional Catalogs
@@ -340,6 +372,7 @@ terraform destroy
 ```
 
 **Warning:** This will permanently delete all resources including:
+
 - Databricks workspace and all notebooks/clusters
 - Storage account and all data
 - Unity Catalog metadata
@@ -361,6 +394,7 @@ Note: Destroy will remove Unity Catalog first, then the workspace and storage.
 **Managed By:** Terraform  
 **Project:** dataeng42  
 **Architecture:** Modular Unity Catalog Setup
+
 - An active Azure subscription
 
 ### Step 1: Create Azure Service Principal
@@ -371,14 +405,18 @@ First, log into Azure and create a service principal for Terraform authenticatio
 # Login to Azure
 az login
 
+# Set your subscription ID
+SUBSCRIPTION_ID="your-subscription-id-here"
+
 # Create service principal with contributor role
 az ad sp create-for-rbac \
   --name "databricks-terraform-sp" \
   --role contributor \
-  --scopes /subscriptions/<your-subscription-id>
+  --scopes /subscriptions/$SUBSCRIPTION_ID
 ```
 
 **Important:** Save the output containing:
+
 - `appId` (Client ID)
 - `password` (Client Secret)
 - `tenant` (Tenant ID)
@@ -441,10 +479,13 @@ databricks-terraform-catalog/
 ## 🔧 Configuration Files
 
 ### `main.tf`
+
 Contains the Terraform, Azure, and Databricks provider configuration.
 
 ### `variables.tf`
+
 Defines configurable variables:
+
 - `location` - Azure region (default: australiaeast)
 - `resource_group_name` - Resource group name
 - `databricks_workspace_name` - Workspace name
@@ -454,24 +495,32 @@ Defines configurable variables:
 - `tags` - Resource tags
 
 ### `databricks.tf`
+
 Defines the Azure resources:
+
 - Resource Group
 - Databricks Workspace
 
 ### `storage.tf`
+
 Defines Unity Catalog storage resources:
+
 - Azure Storage Account V2 with hierarchical namespace
 - Data Lake Gen2 filesystem and folder structure
 - Role assignments for Unity Catalog access connector
 
 ### `unity_catalog.tf`
+
 Defines Unity Catalog objects:
+
 - Storage credential using Azure managed identity
 - External location pointing to the storage account
 - Dev catalog for data assets
 
 ### `outputs.tf`
+
 Exports important resource information:
+
 - Databricks workspace ID and URL
 - Resource group name
 - Storage account details and endpoints
@@ -512,18 +561,22 @@ Azure Databricks automatically creates a managed resource group that contains un
 The project automatically sets up Unity Catalog-ready storage infrastructure:
 
 ### Storage Account Details
+
 - **Name:** `stunitycatalogso4iniyd` (dynamically generated)
 - **Type:** Azure Data Lake Storage Gen2 (StorageV2 with hierarchical namespace)
 - **Container:** `data` with `catalogs` folder pre-created
 - **Endpoint:** `https://stunitycatalogso4iniyd.dfs.core.windows.net/`
 
 ### Access Configuration
+
 - **Unity Catalog Access Connector:** Automatically discovered from managed resource group
 - **Permissions:** Storage Blob Data Contributor role assigned
 - **Managed Identity:** `115f5969-fad7-417e-8303-263393f6c869`
 
 ### Usage in Databricks
+
 Use these URLs when configuring Unity Catalog:
+
 - **Metastore Root:** `abfss://data@stunitycatalogso4iniyd.dfs.core.windows.net/catalogs/`
 - **External Locations:** `abfss://data@stunitycatalogso4iniyd.dfs.core.windows.net/`
 
@@ -556,10 +609,12 @@ To modify the deployment:
 ### Common Issues
 
 1. **Authentication Errors**
+
    - Verify environment variables are loaded: `echo $ARM_CLIENT_ID`
    - Check service principal permissions in Azure portal
 
 2. **Resource Naming Conflicts**
+
    - Databricks workspace names must be globally unique
    - Modify `databricks_workspace_name` variable if needed
 
